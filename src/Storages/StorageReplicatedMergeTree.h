@@ -959,6 +959,7 @@ private:
         const Strings & replicas, const String & mutation_id) const;
 
     MutationsSnapshotPtr getMutationsSnapshot(const IMutationsSnapshot::Params & params) const override;
+    bool hasMutationVersionInRange(const String & partition_id, Int64 min_version, Int64 max_version) const override;
 
     void startBackgroundMovesIfNeeded() override;
 

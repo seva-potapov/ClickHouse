@@ -9986,6 +9986,13 @@ MergeTreeData::MutationsSnapshotPtr StorageReplicatedMergeTree::getMutationsSnap
     return queue.getMutationsSnapshot(params);
 }
 
+bool StorageReplicatedMergeTree::hasMutationVersionInRange(const String & partition_id, Int64 min_version, Int64 max_version) const
+{
+    std::lock_guard lock(queue.state_mutex);
+    Int64 next = queue.getNextMutationVersion(partition_id, min_version);
+    return next > 0 && next < max_version;
+}
+
 MutationCounters StorageReplicatedMergeTree::getMutationCounters() const
 {
     return queue.getMutationCounters();

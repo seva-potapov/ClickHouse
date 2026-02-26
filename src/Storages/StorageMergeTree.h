@@ -440,6 +440,7 @@ private:
     PartMutationBackoffPolicy mutation_backoff_policy;
 
     MutationsSnapshotPtr getMutationsSnapshot(const IMutationsSnapshot::Params & params) const override;
+    bool hasMutationVersionInRange(const String & partition_id, Int64 min_version, Int64 max_version) const override;
 };
 
 }

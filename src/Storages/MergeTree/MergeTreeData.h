@@ -771,6 +771,10 @@ public:
 
     bool assertNoPatchesForParts(const DataPartsVector & parts, const DataPartsVector & patches, std::string_view command, bool throw_on_error = true) const;
 
+    /// Returns true if there is a pending mutation with version V such that min_version < V < max_version
+    /// for the given partition. Used to prevent merging patch parts across mutation boundaries.
+    virtual bool hasMutationVersionInRange(const String & partition_id, Int64 min_version, Int64 max_version) const;
+
     /// If the table contains too many active parts, sleep for a while to give them time to merge.
     /// If until is non-null, wake up from the sleep earlier if the event happened.
     /// The decision to delay or throw is made according to settings 'parts_to_delay_insert' and 'parts_to_throw_insert'.

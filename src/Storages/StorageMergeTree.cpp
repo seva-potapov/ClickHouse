@@ -3031,6 +3031,13 @@ MutationCounters StorageMergeTree::getMutationCounters() const
     return mutation_counters;
 }
 
+bool StorageMergeTree::hasMutationVersionInRange(const String & /*partition_id*/, Int64 min_version, Int64 max_version) const
+{
+    std::lock_guard lock(currently_processing_in_background_mutex);
+    auto it = current_mutations_by_version.upper_bound(min_version);
+    return it != current_mutations_by_version.end() && static_cast<Int64>(it->first) < max_version;
+}
+
 void StorageMergeTree::startBackgroundMovesIfNeeded()
 {
     if (areBackgroundMovesNeeded())

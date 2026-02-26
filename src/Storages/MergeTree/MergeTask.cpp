@@ -45,6 +45,7 @@
 #include <Storages/MergeTree/MergeProjectionPartsTask.h>
 #include <Storages/MergeTree/MergeTreeData.h>
 #include <Storages/MergeTree/MergeTreeDataWriter.h>
+#include <Storages/MergeTree/PatchParts/PatchPartsUtils.h>
 #include <Storages/MergeTree/MergeTreeIndexGranularity.h>
 #include <Storages/MergeTree/MergeTreeSequentialSource.h>
 #include <Storages/MergeTree/MergeTreeSettings.h>
@@ -663,6 +664,24 @@ bool MergeTask::ExecuteAndFinalizeHorizontalPart::prepare() const
     if (global_ctx->new_data_part->info.isPatch())
     {
         auto set = SourcePartsSetForPatch::merge(global_ctx->future_part->parts);
+
+        if (!set.empty() && set.getMinDataVersion() != set.getMaxDataVersion())
+        {
+            auto original_partition_id = getOriginalPartitionIdOfPatch(
+                global_ctx->new_data_part->info.getPartitionId());
+
+            if (global_ctx->data->hasMutationVersionInRange(
+                    original_partition_id,
+                    set.getMinDataVersion(),
+                    set.getMaxDataVersion()))
+            {
+                throw Exception(ErrorCodes::ABORTED,
+                    "Cannot merge patch parts because the merged SourcePartsSet "
+                    "version range [{}, {}] would span a mutation boundary in partition {}",
+                    set.getMinDataVersion(), set.getMaxDataVersion(), original_partition_id);
+            }
+        }
+
         global_ctx->new_data_part->setSourcePartsSet(std::move(set));
     }
 

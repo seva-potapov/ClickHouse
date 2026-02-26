@@ -7759,6 +7759,11 @@ bool MergeTreeData::assertNoPatchesForParts(const DataPartsVector & parts, const
     return true;
 }
 
+bool MergeTreeData::hasMutationVersionInRange(const String & /*partition_id*/, Int64 /*min_version*/, Int64 /*max_version*/) const
+{
+    return false;
+}
+
 namespace
 {
 
